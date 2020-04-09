@@ -3,6 +3,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 var USER_NAMES = []; // create an empty array
+var names=[];
 var AYLIENTextAPI = require('aylien_textapi');
 var textapi = new AYLIENTextAPI({
   application_id: "be8862f5",
@@ -39,14 +40,23 @@ io.on('connection', function(socket){
     socket.on('my event connection',function(json){
         USER_NAMES[socket.id]=json['user_name'];
         console.log(USER_NAMES);
-        var names=[]
+        names=[];
         for (var key in USER_NAMES)
             {
              names.push(USER_NAMES[key]);
              }
          io.emit('connect event',names)
     });
-
+    socket.on('disconnect', function(){
+        console.log('user disconnected');
+        delete USER_NAMES[socket.id]
+        names=[];
+        for (var key in USER_NAMES)
+            {
+             names.push(USER_NAMES[key]);
+             }
+        io.emit('connect event',names)
+    });
     socket.on('chat message', function(json){
         name= USER_NAMES[socket.id];
         msg= json['message'];
@@ -83,44 +93,3 @@ http.listen(port, function(){
 });
 
 
-//app = Flask(__name__)
-//app.config['SECRET_KEY'] = 'mysecret'
-//socketio = SocketIO(app,cors_allowed_origins='*')
-//
-//client = textapi.Client("be8862f5", "873f2bb1ab151d51d050114c84018841")
-//
-//def messageReceived(methods=['GET', 'POST']):
-//    print('message was received!!!')
-//
-//
-//
-//@socketio.on('my event message')
-//def handle_my_custom_event(json, methods=['GET', 'POST']):
-//	if str(json['message'])!='':
-//		msg=json['message']
-//		sentiment = client.Sentiment({'text': json['message']})['polarity']
-//		if sentiment=='positive':
-//			emoji=":)"
-//		elif sentiment=='negative':
-//			emoji=":("
-//		else:
-//			emoji=":|"
-//		print('Message: ' + msg)
-//		msg_emoji= msg+ " "+emoji
-//		json['message']=msg_emoji
-//		json['user_name']=USER_NAMES[json['user_id']]
-//		socketio.emit('my response', json, callback=messageReceived)
-//	print('received my event: ' + str(json))
-//
-//@socketio.on('my event connection')
-//def handle_my_connection(json, methods=['GET', 'POST']):
-//	//USER_NAMES[json['user_id']]=json['user_name']
-//
-//	USER_NAMES.push({
-//    key:   "keyName",
-//    value: "the value"
-//    });
-//
-//	print('user_names dict',USER_NAMES)
-//	socketio.emit('my response connection',USER_NAMES, callback=messageReceived)
-//	print('received my event: ' + str(json))
