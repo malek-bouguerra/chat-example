@@ -10,15 +10,6 @@ var textapi = new AYLIENTextAPI({
   application_key: "873f2bb1ab151d51d050114c84018841"
 });
 
-//textapi.sentiment({
-//  'text': 'John is a very good football player!'
-//}, function(error, response) {
-//  if (error === null) {
-//    console.log(response);
-//    console.log(response['polarity']);
-//  }
-//});
-
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/login_page.html');
 });
@@ -26,13 +17,6 @@ app.get('/', function(req, res){
 app.get('/index.html', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
-
-//io.on('connection', function(socket){
-//  console.log('a user connected');
-//  socket.on('disconnect', function(){
-//    console.log('user disconnected');
-//  });
-//});
 
 io.on('connection', function(socket){
 
@@ -49,6 +33,7 @@ io.on('connection', function(socket){
     });
     socket.on('disconnect', function(){
         console.log('user disconnected');
+        io.emit('chat message', USER_NAMES[socket.id]+' left the chat');
         delete USER_NAMES[socket.id]
         names=[];
         for (var key in USER_NAMES)
